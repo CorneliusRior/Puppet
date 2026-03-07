@@ -12,6 +12,9 @@ public class PuppetCommand
     public Func<PuppetContext, IReadOnlyList<string>, CancellationToken, Task>? ExecuteAsync { get; init; }
     public bool CanExecute => ExecuteAsync is not null;
 
+    public Func<PuppetContext, IReadOnlyList<string>, CancellationToken, Task>? TestAsync { get; init; }
+    public bool CanTest => ExecuteAsync is not null;
+
     public string? Usage { get; init; }
     public string? Description { get; init; }
     public IReadOnlyList<string> Examples { get; init; }
