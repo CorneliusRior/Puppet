@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Puppet.Cli/Puppet.Cli.csproj" />
+    <Project Path="src/Puppet/Puppet.csproj" />
+  </Folder>
+</Solution>
