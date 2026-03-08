@@ -1,4 +1,11 @@
 <Solution>
+  <Folder Name="/docs/">
+    <File Path="PuppetCommand.md" />
+    <File Path="PuppetContext.md" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/Puppet.Cli/Puppet.Cli.csproj" />
     <Project Path="src/Puppet/Puppet.csproj" />

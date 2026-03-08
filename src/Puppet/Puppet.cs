@@ -22,8 +22,6 @@ public sealed class Puppet
         foreach (IPuppetCommandSet cs in commandSets) rootCommands.AddRange(cs.Commands);
         AssignCommandAddresses(rootCommands);
         BuildAliasDictionary(rootCommands);
-        //CommandIndex.OrderBy(kv => kv.Value.AddressString, StringComparer.OrdinalIgnoreCase);
-        //AliasIndex.OrderBy(kv => kv.Key).OrderBy(kv => kv.Value.AddressString);
     }
 
     // Set-up functions:
@@ -158,11 +156,14 @@ public sealed class Puppet
             List<string> tokens = input.Tokenize();
             string commandHead = tokens[0];
             IReadOnlyList<string> args = tokens.Skip(1).ToList();
-            await TestCommandAsync(commandHead, args, ct);
+            bool ok = await TestCommandAsync(commandHead, args, ct);
+            if (ok) WriteLine($"[SUCCESS]: '{input}'.");
+            else WriteLine($"[FAILURE]: '{input}'.");
         }
         catch (PuppetUserException ex) { WriteLine($"Input Error, {ex.Location} {ex.Message}"); }
         catch (PuppetException ex) { WriteLine($"Error in {ex.Location} {ex.Message}"); }
         catch (Exception ex) { WriteLine($"Error: {ex.Message}"); }
+        
     }
 
     /// <summary>
@@ -180,7 +181,7 @@ public sealed class Puppet
             WriteLine($"Command {commandHead} as no TestAsync method: cannot test.");
             return true;
         }
-        PuppetContext ctx = new(this);
+        PuppetContext ctx = new(this);       
         return await cmd.TestAsync!(ctx, args, ct);
     }
 
@@ -204,9 +205,9 @@ public sealed class Puppet
             bool ok = await TestCommandAsync(commandHead, args, ct);
             if (!ok)
             {
-                WriteLine($"Command '{input}' TestAsync returned false: not executing.");
+                WriteLine($"[FAILURE]: Command '{input}' TestAsync returned false: not executing.");
                 return;
-            }
+            }            
             await ExecuteCommandAsync(commandHead, args, ct);
         }
         catch (PuppetUserException ex) { WriteLine($"Input Error, {ex.Location} {ex.Message}"); }

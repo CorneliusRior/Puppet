@@ -8,7 +8,7 @@ public sealed class BaseCommands : IPuppetCommandSet
             name: "Help",
             executeAsync: HelpAsync,
             aliases: ["h", "?"],
-            usage: "help (string HelpAttribute) (string CommandHeads)",
+            usage: "help [string HelpAttribute] [string CommandHeads]",
             description: "Lists all commands and specified help attribute (description by default), or shows full help for all commands with specified CommandHeads.",
             examples:
             [
@@ -27,13 +27,13 @@ If two arguments are given, the first argument will be interpreted as a Help Att
                 new PuppetCommand(
                     name: "List",
                     executeAsync: HelpListAsync,
-                    usage: "list (string HelpAttribute) (string CommandHeads)",
+                    usage: "list [string HelpAttribute] [string CommandHeads]",
                     description: "List all commands and specified help attribute (description by default), or just for all commands with specified CommandHeads."
                 ),
                 new PuppetCommand(
                     name: "Full",
                     executeAsync: HelpFullAsync,
-                    usage: "Help.Full (string CommandHeads)",
+                    usage: "Help.Full [string CommandHeads]",
                     description: "Show full help for all commands, or all commands with specified CommandHeads."
                 )
             ]            
@@ -42,7 +42,7 @@ If two arguments are given, the first argument will be interpreted as a Help Att
         new PuppetCommand(
             name: "Commands",
             executeAsync: CommandsAsync,
-            aliases: ["CommandList", "cmd"],
+            aliases: ["CommandList", "cmd", "Commands", "Command"],
             description: "List all commands",
             children:
             [
@@ -63,7 +63,7 @@ If two arguments are given, the first argument will be interpreted as a Help Att
         )
     ];   
 
-    private Task HelpAsync(PuppetContext ctx, IReadOnlyList<string> args, CancellationToken cancellationToken)
+    private Task HelpAsync(PuppetContext ctx, IReadOnlyList<string> args, CancellationToken ct)
     {
         if (args.Count == 0)
         {
@@ -96,7 +96,7 @@ If two arguments are given, the first argument will be interpreted as a Help Att
 
     }
 
-    private Task HelpListAsync(PuppetContext ctx, IReadOnlyList<string> args, CancellationToken cancellationToken)
+    private Task HelpListAsync(PuppetContext ctx, IReadOnlyList<string> args, CancellationToken ct)
     {
         if (args.Count == 0)
         {
@@ -137,7 +137,7 @@ If two arguments are given, the first argument will be interpreted as a Help Att
         foreach (PuppetCommand c in commands) ctx.WriteLine(c.PrintShort(col1space, col2space, help, oneline));
     }
 
-    private Task HelpFullAsync(PuppetContext ctx, IReadOnlyList<string> args, CancellationToken cancellationToken)
+    private Task HelpFullAsync(PuppetContext ctx, IReadOnlyList<string> args, CancellationToken ct)
     {
         if (args.Count == 0)
         {
@@ -161,7 +161,7 @@ If two arguments are given, the first argument will be interpreted as a Help Att
         foreach (PuppetCommand c in commands) ctx.WriteLine(c.PrintLong());
     }
 
-    private Task CommandsAsync(PuppetContext ctx, IReadOnlyList<string> args, CancellationToken cancellationToken)
+    private Task CommandsAsync(PuppetContext ctx, IReadOnlyList<string> args, CancellationToken ct)
     {
         ctx.WriteLine("Printing all commands. Try 'help <command>' for more information:");
         List<PuppetCommand> orderedCommands = ctx.SearchDictionary();

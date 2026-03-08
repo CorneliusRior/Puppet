@@ -8,15 +8,14 @@ namespace Puppet.Cli
     {
         public IReadOnlyList<PuppetCommand> Commands =>
         [
-            new PuppetCommand(
-                name: "Assessment",                
+            new(name: "Assessment",                
                 executeAsync: ConfirmAsync,
                 testAsync: ConfirmTestAsync,
                 description: "Asks for your assessment on a number of topics."               
             )
         ];
 
-        private async Task ConfirmAsync(PuppetContext ctx, IReadOnlyList<string> args, CancellationToken cancellationToken)
+        private async Task ConfirmAsync(PuppetContext ctx, IReadOnlyList<string> args, CancellationToken ct)
         {
             bool pizza = await ctx.ConfirmRequireAsync("Do you like pizza?", "Sorry, I didn't hear that.");
             bool hotDogs = await ctx.ConfirmRequireAsync("Do you like hotdogs?", "I can't understand you.");

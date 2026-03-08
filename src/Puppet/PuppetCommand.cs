@@ -35,6 +35,8 @@ public class PuppetCommand
         string name,
         Func<PuppetContext, IReadOnlyList<string>, CancellationToken, Task>? executeAsync = null,
         Func<PuppetContext, IReadOnlyList<string>, CancellationToken, Task<bool>>? testAsync = null,
+        Func<PuppetContext, object, CancellationToken, Task>? ExecuteJsonAsync = null,
+        Func<PuppetContext, object, CancellationToken, Task<bool>>? TestJsonAsync = null,
         IReadOnlyList<string>? aliases = null,
         string? usage = null,
         string? description = null,
