@@ -17,8 +17,27 @@ namespace Puppet.Cli
             Cmd("TestJson")
                 .ExecJson<TestPayload>(TestJsonAsync)
                 .TestJson<TestPayload>(TestTestJsonAsync)            
+            .Build(),
+
+            Cmd("ToBox").Exec(ToBox)
+                .Children(
+                Cmd("Double").Exec(ToDoubleBox).Build())
             .Build()
         ];
+
+        private Task ToBox(PuppetContext ctx, IReadOnlyList<string> args, CancellationToken ct)
+        {
+            string msg = args.String(0, "Msg").Replace("\\n", "\n");
+            ctx.WriteLine(msg.ToBox());
+            return Task.CompletedTask;
+        }
+
+        private Task ToDoubleBox(PuppetContext ctx, IReadOnlyList<string> args, CancellationToken ct)
+        {
+            string msg = args.String(0, "Msg").Replace("\\n", "\n");
+            ctx.WriteLine(msg.ToDoubleBox());
+            return Task.CompletedTask;
+        }
 
         private Task TestJsonAsync(PuppetContext ctx, TestPayload pl, CancellationToken ct)
         {

@@ -75,9 +75,11 @@ If two arguments are given, the first argument will be interpreted as a Help Att
         ).Build(),
 
         Cmd("Script").Description("Commands for running scripts.").Children(
-            Cmd("Run").Exec(ScriptRunAsync).Description("Runs a script from a file path. Tests first.")
+            Cmd("Run").Exec(ScriptTestAndRunAsync).Description("Runs a script from a file path. Tests first.")
                 .Usage("Script.Run <string FilePath>")
-                .Build(),
+                .Children(
+                    Cmd("Force").Exec(ScriptRunAsync).Description("Runs a script from a file path without testing first.").Build()
+                ).Build(),
             Cmd("Test").Exec(ScriptTestAsync).Description("Tests a script from a file path.")
                 .Usage("Script.Test <string FilePath>")
                 .Build()
@@ -236,5 +238,13 @@ If two arguments are given, the first argument will be interpreted as a Help Att
         string path = args.StringOrNull(0, "File Path") ?? await ctx.ReadLineAsync("Please enter filepath:");
         ctx.WriteLine($"Parsing file '{Path.GetFileName(path)}'...");
         await ctx.TestScriptAsync(FromPath(path), ct);
+    }
+
+    private async Task ScriptTestAndRunAsync(PuppetContext ctx, IReadOnlyList<string> args, CancellationToken ct)
+    {
+        string path = args.StringOrNull(0, "File Path") ?? await ctx.ReadLineAsync("Please enter filepath:");
+        ctx.WriteLine($"Parsing file '{Path.GetFileName(path)}'...");
+        Script script = FromPath(path);
+        if (await ctx.TestScriptAsync(script, ct)) await ctx.ExecuteScriptAsync(script, ct);
     }
 }

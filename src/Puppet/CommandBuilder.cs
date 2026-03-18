@@ -108,6 +108,12 @@ namespace Puppet
             return this;
         }
 
+        public CommandBuilder Remarks(string remarks)
+        {
+            _remarks = remarks;
+            return this;
+        }
+
         public CommandBuilder Children(params PuppetCommand[] children)
         {
             _children.AddRange(children);

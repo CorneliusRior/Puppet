@@ -46,13 +46,11 @@ Counter.Increment
 }
 """)
                     .ExecJson<IncrementPayload>(CounterIncrementAsync)
-                    .TestJson<IncrementPayload>(CounterIncrementTestAsync)
                     .Build(),
 
                 CommandBuilder.Command("Decrement")
                     .Aliases("dec", "-")
                     .Description("Decrements a counter by a specified amount.")
-                    .Usage("Counter.Decrement")
                     .Examples("""
 Counter.Decrement
 {
@@ -61,7 +59,6 @@ Counter.Decrement
 }
 """)
                     .ExecJson<DecrementPayload>(CounterDecrementAsync)
-                    .TestJson<DecrementPayload>(CounterDecrementTestAsync)
                     .Build(),
 
                 CommandBuilder.Command("Multiply")
@@ -76,7 +73,6 @@ Counter.Multiply
 }
 """)
                     .ExecJson<MultiplyPayload>(CounterMultiplyAsync)
-                    .TestJson<MultiplyPayload>(CounterMultiplyTestAsync)
                     .Build(),
 
                 CommandBuilder.Command("Rename")
@@ -91,7 +87,6 @@ Counter.Rename
 }
 """)
                     .ExecJson<RenamePayload>(CounterRenameAsync)
-                    .TestJson<RenamePayload>(CounterRenameTestAsync)
                     .Build(),
 
                 CommandBuilder.Command("Delete")
@@ -105,7 +100,6 @@ Counter.Delete
 }
 """)
                     .ExecJson<DeletePayload>(CounterDeleteAsync)
-                    .TestJson<DeletePayload>(CounterDeleteTestAsync)
                     .Build(),
 
                 CommandBuilder.Command("Get")
@@ -119,7 +113,6 @@ Counter.Get
 }
 """)
                     .ExecJson<GetPayload>(CounterGetAsync)
-                    .TestJson<GetPayload>(CounterGetTestAsync)
                     .Build(),
 
                 CommandBuilder.Command("List")
@@ -145,7 +138,6 @@ Counter.Reset
 }
 """)
                     .ExecJson<ResetPayload>(CounterResetAsync)
-                    .TestJson<ResetPayload>(CounterResetTestAsync)
                     .Build()
             )
             .Build()

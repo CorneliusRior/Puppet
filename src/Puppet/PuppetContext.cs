@@ -26,5 +26,5 @@ public sealed class PuppetContext
 
     // Script:
     public Task ExecuteScriptAsync(Script script, CancellationToken ct = default) => _puppet.ExecuteScriptAsync(script, ct);
-    public Task TestScriptAsync(Script script, CancellationToken ct = default) => _puppet.TestScriptAsync(script, ct);
+    public Task<bool> TestScriptAsync(Script script, CancellationToken ct = default) => _puppet.TestScriptAsync(script, ct);
 }

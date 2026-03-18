@@ -76,4 +76,36 @@ public static class StringHelpers
         foreach (string l in inter.Skip(1)) sb.AppendLine(new string(' ', leftMargin) + l);
         return (sb.ToString());
     }
-}
+
+    public static string ToBox(this string msg)
+    {
+        if (string.IsNullOrWhiteSpace(msg)) return "┌─┐\n└─┘";
+
+        string[] lines = msg.Split(new[] {"\r\n", "\n" }, StringSplitOptions.None);
+        int msgWidth = lines.Max(s => s.Length);
+        int msgHeight = lines.Length;
+
+        string vert = new string('─', msgWidth + 2);
+        StringBuilder sb = new();
+        sb.AppendLine('┌' + vert + '┐');
+        foreach (string l in lines) sb.AppendLine("│ " + l.PadRight(msgWidth) + " │");
+        sb.AppendLine('└' + vert + '┘');
+        return sb.ToString();
+    }      
+    
+    public static string ToDoubleBox(this string msg)
+    {
+        if (string.IsNullOrWhiteSpace(msg)) return "╔═╗\n╚═╝";
+
+        string[] lines = msg.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+        int msgWidth = lines.Max(s => s.Length);
+        int msgHeight = lines.Length;
+
+        string vert = new string('═', msgWidth + 2);
+        StringBuilder sb = new();
+        sb.AppendLine('╔' + vert + '╗');
+        foreach (string l in lines) sb.AppendLine("║ " + l.PadRight(msgWidth) + " ║");
+        sb.AppendLine('╚' + vert + '╝');
+        return sb.ToString();
+    }
+}                 
