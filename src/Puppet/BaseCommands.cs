@@ -1,4 +1,5 @@
 using static Puppet.CmdBuilder;
+using static Puppet.ScriptParser;
 
 namespace Puppet;
 
@@ -70,6 +71,15 @@ If two arguments are given, the first argument will be interpreted as a Help Att
                 .Build(),
             Cmd("Test").Exec(TestJson).Description("Tests a JsonCommand")
                 .Usage("Json.Test <string CommandHead>")
+                .Build()
+        ).Build(),
+
+        Cmd("Script").Description("Commands for running scripts.").Children(
+            Cmd("Run").Exec(ScriptRunAsync).Description("Runs a script from a file path. Tests first.")
+                .Usage("Script.Run <string FilePath>")
+                .Build(),
+            Cmd("Test").Exec(ScriptTestAsync).Description("Tests a script from a file path.")
+                .Usage("Script.Test <string FilePath>")
                 .Build()
         ).Build()
     ];   
@@ -212,5 +222,19 @@ If two arguments are given, the first argument will be interpreted as a Help Att
         bool success = await ctx.TestJsonAsync(commandHead, json, ct);
         if (success) ctx.WriteLine($"No issues found: '{string.Join(' ', args)}'.");
         else ctx.WriteLine($"Failed test: '{string.Join(' ', args)}'.");
+    }
+
+    private async Task ScriptRunAsync(PuppetContext ctx, IReadOnlyList<string> args, CancellationToken ct)
+    {
+        string path = args.StringOrNull(0, "FilePath") ?? await ctx.ReadLineAsync("Please enter filepath:");
+        ctx.WriteLine($"Parsing file '{Path.GetFileName(path)}'...");
+        await ctx.ExecuteScriptAsync(FromPath(path), ct);
+    }
+
+    private async Task ScriptTestAsync(PuppetContext ctx, IReadOnlyList<string> args, CancellationToken ct)
+    {
+        string path = args.StringOrNull(0, "File Path") ?? await ctx.ReadLineAsync("Please enter filepath:");
+        ctx.WriteLine($"Parsing file '{Path.GetFileName(path)}'...");
+        await ctx.TestScriptAsync(FromPath(path), ct);
     }
 }

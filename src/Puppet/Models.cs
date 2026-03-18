@@ -23,6 +23,15 @@ public sealed class PuppetException : Exception
     }
 }
 
+public sealed class ScriptException : Exception
+{
+    public string Location { get; }
+    public ScriptException(string message, int? scriptLineNumber = null, [CallerMemberName] string member = "", [CallerFilePath] string file = "", [CallerLineNumber] int line = 0) : base (message)
+    {
+        Location = $"{Path.GetFileName(file)} (line {line}) {member}(), Script Line='{(scriptLineNumber.ToString() ?? "unspecified")}':";
+    }
+}
+
 
 public enum HelpAttribute
 {

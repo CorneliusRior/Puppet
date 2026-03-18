@@ -244,4 +244,84 @@ public sealed class Puppet
         PuppetContext ctx = new(this);
         return await cmd.TestJsonAsync!(ctx, pl, ct);
     }
+
+    // Scripting:
+    public async Task ExecuteScriptAsync(Script script, CancellationToken ct = default)
+    {
+        // Test it first:
+        if (/*await TestScriptAsync(script, ct)*/true)
+        {
+            WriteLine($"\n\n{new string('-', 32)}\n\nTesting complete, running script\n\n{new string('-', 32)}\n\n");
+            foreach(ScriptStatement s in script.Statements)
+            {
+                await ExecuteJsonAsync(s.CommandHead, s.JsonPayload, ct);
+                //WriteLine($"Executed statement {s.PrintRef()}");
+            }
+        }
+    }
+
+    public async Task<bool> TestScriptAsync(Script script, CancellationToken ct = default)
+    {
+        WriteLine($"Testing script {script.PrintInfo()}");
+        bool ok = true;
+        List<ScriptStatement> error = new();
+        PuppetContext ctx = new(this);
+        foreach (ScriptStatement s in script.Statements)
+        {
+            try
+            {
+                PuppetCommand cmd = GetCommand(s.CommandHead);
+
+                // Test that it can even run:
+                if (!cmd.CanExecuteJson) throw new PuppetException("No ExecuteJsonAsync mathos - this command cannot run JSON");
+
+                // Test that the payload can be parsed:
+                if (cmd.JsonPayloadType is null) throw new PuppetException($"Null JSON Payload - this command cannot parse JSON.");
+                object pl;
+                pl = JsonSerializer.Deserialize(s.JsonPayload, cmd.JsonPayloadType, _jsonOptions) ?? throw new PuppetUserException($"Invalid JSON: Cannot parse.");
+
+                // If there's no test method, call it a success:
+                if (!cmd.CanTestJson)
+                {
+                    WriteLine($"[OK] (?) No TestJsonAsync method found for {s.PrintRef()}");
+                    continue;
+                }
+                bool success = await cmd.TestJsonAsync!(ctx, pl, ct);
+                if (success) WriteLine($"[OK] {s.PrintRef()}");
+                else
+                { 
+                    WriteLine($"[ERROR] {s.PrintRef()}: Failed TestJsonAsync.");
+                    ok = false;
+                    error.Add(s);
+                }
+            }
+            catch (PuppetUserException ex)
+            {
+                WriteLine($"[ERROR] {s.PrintRef()}: Input Error, {ex.Location} {ex.Message}");
+                ok = false;
+                error.Add(s);
+            }
+            catch (PuppetException ex)
+            {
+                WriteLine($"[ERROR] {s.PrintRef()}: Error in {ex.Location} {ex.Message}");
+                ok = false;
+                error.Add(s);
+            }
+            catch (Exception ex)
+            {
+                WriteLine($"[ERROR] {s.PrintRef()}: {ex.Message}");
+                ok = false;
+                error.Add(s);
+            }            
+        }
+        if (ok) WriteLine($"\n\n------No errors found.------\n\n");
+        else
+        {
+            WriteLine($"\n\n------ {error.Count} Error(s) found: ------\n");
+            if (error.Count > 5) foreach (ScriptStatement est in error) est.PrintInfoShort();
+            else foreach (ScriptStatement est in error) est.PrintInfo();
+        }
+        return ok;
+    }
+
 }

@@ -20,7 +20,11 @@ public sealed class PuppetContext
     public Task ExecuteCommandAsync(string commandHead, IReadOnlyList<string> args, CancellationToken ct = default) => _puppet.ExecuteCommandAsync(commandHead, args, ct);
     public Task<bool> TestCommandAsync(string commandHead, IReadOnlyList<string> args, CancellationToken ct = default) => _puppet.TestCommandAsync(commandHead, args, ct);
 
+    // Json:
     public Task ExecuteJsonAsync(string commandHead, string json, CancellationToken ct = default) => _puppet.ExecuteJsonAsync(commandHead, json, ct);
-
     public Task<bool> TestJsonAsync(string commandHead, string json, CancellationToken ct = default) => _puppet.TestJsonAsync(commandHead, json, ct);
+
+    // Script:
+    public Task ExecuteScriptAsync(Script script, CancellationToken ct = default) => _puppet.ExecuteScriptAsync(script, ct);
+    public Task TestScriptAsync(Script script, CancellationToken ct = default) => _puppet.TestScriptAsync(script, ct);
 }

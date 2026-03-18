@@ -1,7 +1,8 @@
 ﻿using Puppet;
 using Puppet.Cli;
+using Puppet.Example;
 
-Puppet.Puppet puppet = new(new SampleCommands());
+Puppet.Puppet puppet = new(new SampleCommands(), new CounterCommands());
 puppet.OutputRequested += msg => Console.WriteLine(msg);
 puppet.InputRequestedAsync = prompt =>
 {
