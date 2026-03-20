@@ -1,7 +1,10 @@
-using static Puppet.CmdBuilder;
-using static Puppet.ScriptParser;
+using Puppet.Tools;
+using Puppet.Models;
+using static Puppet.Tools.CmdBuilder;
+using static Puppet.Scripting.ScriptParser;
+using Puppet.Scripting;
 
-namespace Puppet;
+namespace Puppet.CommandSets;
 
 public sealed class BaseCommands : IPuppetCommandSet
 {  
@@ -230,7 +233,7 @@ If two arguments are given, the first argument will be interpreted as a Help Att
     {
         string path = args.StringOrNull(0, "FilePath") ?? await ctx.ReadLineAsync("Please enter filepath:");
         ctx.WriteLine($"Parsing file '{Path.GetFileName(path)}'...");
-        Script script = await ctx.WithWaiterAsync(_ => Task.Run(() => FromPath(path)), WaitAnimation.Spinner, "Parsing Script ", "", "Parsed.", 100, ct);
+        Script script = await ctx.WithWaiterAsync(_ => Task.Run(() => FromPath(path)), "Parsing Script ", "", "Parsed.", 100, ct, WaitAnimation.Spinner);
         await ctx.ExecuteScriptAsync(script, ct);
     }
 
@@ -238,7 +241,7 @@ If two arguments are given, the first argument will be interpreted as a Help Att
     {
         string path = args.StringOrNull(0, "File Path") ?? await ctx.ReadLineAsync("Please enter filepath:");
         ctx.WriteLine($"Parsing file '{Path.GetFileName(path)}'...");
-        Script script = await ctx.WithWaiterAsync(_ => Task.Run(() => FromPath(path)), WaitAnimation.Spinner, "Parsing Script ", "", "Parsed.", 100, ct);
+        Script script = await ctx.WithWaiterAsync(_ => Task.Run(() => FromPath(path)), "Parsing Script ", "", "Parsed.", 100, ct, WaitAnimation.Spinner);
         await ctx.TestScriptAsync(script, ct);
     }
 
@@ -246,7 +249,7 @@ If two arguments are given, the first argument will be interpreted as a Help Att
     {
         string path = args.StringOrNull(0, "File Path") ?? await ctx.ReadLineAsync("Please enter filepath:");
         ctx.WriteLine($"Parsing file '{Path.GetFileName(path)}'...");
-        Script script = await ctx.WithWaiterAsync(_ => Task.Run(() => FromPath(path)), WaitAnimation.Spinner, "Parsing Script ", "", "Parsed.", 100, ct);
+        Script script = await ctx.WithWaiterAsync(_ => Task.Run(() => FromPath(path)), "Parsing Script ", "", "Parsed.", 100, ct, WaitAnimation.Spinner);
         if (await ctx.TestScriptAsync(script, ct)) await ctx.ExecuteScriptAsync(script, ct);
     }
 }

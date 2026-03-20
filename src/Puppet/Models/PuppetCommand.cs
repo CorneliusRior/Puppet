@@ -1,6 +1,7 @@
+using Puppet.Tools;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Puppet;
+namespace Puppet.Models;
 
 public class PuppetCommand
 {

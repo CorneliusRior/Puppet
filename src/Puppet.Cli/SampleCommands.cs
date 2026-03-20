@@ -1,7 +1,9 @@
-﻿using static Puppet.CmdBuilder;
+﻿using static Puppet.Tools.CmdBuilder;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Puppet.Models;
+using Puppet.Tools;
 
 namespace Puppet.Cli
 {
@@ -64,9 +66,8 @@ namespace Puppet.Cli
                 async t =>
                 {
                     await Task.Delay(TimeSpan.FromSeconds(seconds));
-                    return true;
                 },
-                animation, pre, suf, fin, waitTime, ct);
+                pre, suf, fin, waitTime, ct, animation);
             
         }
 

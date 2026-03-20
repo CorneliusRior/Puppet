@@ -3,6 +3,7 @@
     <File Path="PuppetCommand.md" />
     <File Path="PuppetContext.md" />
     <File Path="Scripts.md" />
+    <File Path="Tools.md" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="README.md" />

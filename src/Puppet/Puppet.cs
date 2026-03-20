@@ -1,155 +1,26 @@
-﻿using System.Security.Cryptography;
+﻿using Puppet.CommandSets;
+using Puppet.Tools;
+using Puppet.Models;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Puppet.Scripting;
 
 namespace Puppet;
 
 /// <summary>
-/// Entry point for the Puppet library.
-/// 
-/// Instead of having a seperate "engine" class, we will just have this.
+/// Entry point for the Puppet library. This class is split between Puppet.cs, PuppetIO, and PuppetSetup.
 /// </summary>
-public sealed class Puppet
+public sealed partial class Puppet
 {
     // CommandIndex:
     public Dictionary<string, PuppetCommand> CommandIndex = new(StringComparer.OrdinalIgnoreCase);
     public Dictionary<string, PuppetCommand> AliasIndex = new(StringComparer.OrdinalIgnoreCase);
        
-    //Other variables:
+    // Other variables:
     public int OneLineMaxWidth { get; set; } = 200;
     private readonly JsonSerializerOptions _jsonOptions = new();
-
-    // Constructor:
-    public Puppet(params IPuppetCommandSet[] commandSets)
-    {
-        List<PuppetCommand> rootCommands = new();
-        rootCommands.AddRange(new BaseCommands().Commands);
-        foreach (IPuppetCommandSet cs in commandSets) rootCommands.AddRange(cs.Commands);
-        AssignCommandAddresses(rootCommands);
-        BuildAliasDictionary(rootCommands);
-    }
-
-    // Set-up functions:
-    public void AssignCommandAddresses(List<PuppetCommand> commandList)
-    {
-        commandList = commandList.OrderBy(c => c.Name).ToList();
-        foreach (PuppetCommand root in commandList)
-        {
-            List<string> commandHead = new();            
-            AssignChildAddress(root, commandHead);
-        }
-    }
-
-    public void AssignChildAddress(PuppetCommand command, List<string> commandHead)
-    {
-        commandHead.Add(command.Name);
-        command.Address = commandHead.ToArray();
-        command.AddressString = string.Join('.', commandHead);
-        CommandIndex.Add(command.AddressString, command);
-        foreach (PuppetCommand child in command.Children.OrderBy(c => c.Name).ToList()) AssignChildAddress(child, commandHead);
-        commandHead.RemoveAt(commandHead.Count - 1);
-    }
-
-    public void BuildAliasDictionary(List<PuppetCommand> rootCommandList)
-    {
-        foreach (PuppetCommand root in rootCommandList)
-        {
-            List<string> addresses = new();
-            addresses.Add(root.Name);
-            addresses.AddRange(root.Aliases);            
-            foreach (string alias in addresses)
-            {
-                if (!AliasIndex.TryAdd(alias, root)) throw new PuppetException($"Duplicate command or alias address: '{alias}' in '{root.Name}' ('{(root.AddressString ?? "Unknown address")}')");
-                foreach (PuppetCommand child in root.Children)
-                {
-                    AliasDictionaryAdd(alias, child);
-                }
-            }
-        }
-    }
-
-    public void AliasDictionaryAdd(string parentAddress, PuppetCommand command)
-    {
-        List<string> addresses = new();
-        addresses.Add(command.Name);
-        addresses.AddRange(command.Aliases);
-        foreach(string alias in addresses)
-        {
-            string aliasAddress = parentAddress + '.' + alias;
-            if (!AliasIndex.TryAdd(aliasAddress, command)) throw new PuppetException($"Duplocate command or alias address: `{aliasAddress}` in '{command.Name}' ('{command.AddressString ?? "Unknown address"}')");
-            foreach (PuppetCommand child in command.Children)
-            {
-                AliasDictionaryAdd(aliasAddress, child);
-            }
-        }
-    }
-
-    // IO:
-    public event Action<string>? OutputRequested;
-    public event Action<string>? InlineOutputRequested;
-    internal void WriteLine(string msg = "") => OutputRequested?.Invoke(msg);
-    internal void Write(string msg) => InlineOutputRequested?.Invoke(msg);
-
-    private int _lastStatusLength = 0;
-    internal void WriteStatus(string msg)
-    {
-        int padLength = Math.Max(0, _lastStatusLength - msg.Length);
-        string output = "\r" + msg + new string(' ', padLength);
-        _lastStatusLength = msg.Length;
-        Write(output);
-    }
-
-    internal void WriteStatusSample(string msg, int length = 150)
-    {
-        msg = msg.Truncate(length);
-        int padLength = Math.Max(0, length - msg.Length);
-        string output = "\r" + "[ " + msg + new string(' ', padLength) + " ]";
-        _lastStatusLength = output.Length;
-        Write(output);
-    }
-
-    internal void ClearStatus(string msg = "")
-    {
-        if (_lastStatusLength <= 0) return;
-        Write("\r" + new string(' ', _lastStatusLength) + "\r");
-        _lastStatusLength = 0;
-        if (!string.IsNullOrWhiteSpace(msg)) WriteLine(msg);
-    }
-
-    public async Task<T> WithWaiterAsync<T>(Func<CancellationToken, Task<T>> action, WaitAnimation animation = WaitAnimation.Spinner, string prefix = "Loading", string suffix = "", string finish = "Done", int waitTime = 100, CancellationToken ct = default)
-    {
-        using CancellationTokenSource waitCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-
-        Task waitTask = Task.Run(async () =>
-        {
-            string[] frames = animation.GetFrames();
-            int framePadding = frames.Max(f => f.Length);
-            int i = 0;
-            while (!waitCts.Token.IsCancellationRequested)
-            {
-                WriteStatus(prefix + frames[i++ % frames.Length].PadRight(framePadding) + suffix);
-                try { await Task.Delay(waitTime, waitCts.Token); }
-                catch (OperationCanceledException) { break; }
-            }
-        }, waitCts.Token);
-
-        try { return await action(ct); }
-        finally
-        {
-            waitCts.Cancel();
-            ClearStatus(finish);
-            try { await waitTask; }
-            catch (OperationCanceledException) { }
-        }
-    }
-
-    public Func<string, Task<string>>? InputRequestedAsync { get; set; }
-    internal Task<string> ReadLineAsync(string prompt)
-    {
-        if (InputRequestedAsync is null) throw new InvalidOperationException("Input requested callback is not set");
-        return InputRequestedAsync(prompt);
-    }
-
+    
     // Get command:
     public PuppetCommand GetCommand(string commandHead)
     {

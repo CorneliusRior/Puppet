@@ -1,4 +1,4 @@
-namespace Puppet;
+namespace Puppet.Models;
 
 public interface IPuppetCommandSet
 {

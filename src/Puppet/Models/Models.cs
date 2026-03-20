@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace Puppet;
+namespace Puppet.Models;
 
 public sealed class PuppetUserException : Exception
 {
@@ -22,16 +22,6 @@ public sealed class PuppetException : Exception
         Location = $"{Path.GetFileName(file)} (line {line}) {member}():";
     }
 }
-
-public sealed class ScriptException : Exception
-{
-    public string Location { get; }
-    public ScriptException(string message, int? scriptLineNumber = null, [CallerMemberName] string member = "", [CallerFilePath] string file = "", [CallerLineNumber] int line = 0) : base (message)
-    {
-        Location = $"{Path.GetFileName(file)} (line {line}) {member}(), Script Line='{(scriptLineNumber.ToString() ?? "unspecified")}':";
-    }
-}
-
 
 public enum HelpAttribute
 {

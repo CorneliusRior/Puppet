@@ -1,7 +1,13 @@
+using Puppet.Models;
 using System.Text;
 
-namespace Puppet;
+namespace Puppet.Tools;
 
+/// <summary>
+/// Methods for helping handle arguments in PuppetCommands (Human Input). Contains:
+///  - Tokenize
+///  - Argument extractors
+/// </summary>
 public static class ArgumentHelpers
 {
     public static List<string> Tokenize(this string input) 
@@ -46,6 +52,11 @@ public static class ArgumentHelpers
 
     // Argument extractors:
 
+    /// <summary>
+    /// Returns specified string, or throws exception if none present.
+    /// </summary>
+    /// <param name="index">Position of desired argument in "args"e</param>
+    /// <param name="name">Assigned name for string, included in exception message</param>
     public static string String(this IReadOnlyList<string> args, int index, string name)
     {
         if (index >= args.Count) throw new PuppetUserException($"Not enough arguments, missing string '{name}'.");
@@ -228,6 +239,20 @@ public static class ArgumentHelpers
     public static int? IntOrNull(this IReadOnlyList<string> args, int index, string name)
     {
         if (index >= args.Count) return null;
+        if (!int.TryParse(args[index], out int v)) throw new PuppetUserException($"Cannot parse int '{name}': .{args[index]}'.");
+        return v;
+    }
+
+    /// <summary>
+    /// Returns the specified integer, returns fallback if not present or is equal to '_', throw exception if cannot parse.
+    /// </summary>
+    /// <param name="index">Position of desired argument in "args"</param>
+    /// <param name="name">Assigned name for string, included in exception message</param>
+    /// <param name="fallBack">Default return value</param>
+    public static int? IntOrNullable(this IReadOnlyList<string> args, int index, string name, int? fallBack)
+    {
+        if (index >= args.Count) return fallBack;
+        if (args[index] == "_") return fallBack;
         if (!int.TryParse(args[index], out int v)) throw new PuppetUserException($"Cannot parse int '{name}': .{args[index]}'.");
         return v;
     }
