@@ -169,12 +169,12 @@ namespace Puppet
         public static List<PuppetCommand> SearchDictionary(this PuppetContext ctx, string searchTerm = "")
         {
             if (string.IsNullOrWhiteSpace(searchTerm)) return ctx.CommandIndex.Values.ToList();
-            List<PuppetCommand> filtered = ctx.CommandIndex.Values.Where(c => c.AddressString.StartsWith(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+            List<PuppetCommand> filtered = ctx.CommandIndex.Values.Where(c => c.Address.StartsWith(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
             if (filtered.Count == 0)
                 filtered = ctx.AliasIndex
                     .Where(kv => kv.Key.StartsWith(searchTerm, StringComparison.OrdinalIgnoreCase))
                     .Select(kv => kv.Value).Distinct().ToList();
-            filtered.OrderBy(c => c.AddressString);
+            filtered.OrderBy(c => c.Address);
             return filtered;
         }
 

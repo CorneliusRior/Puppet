@@ -158,7 +158,7 @@ If two arguments are given, the first argument will be interpreted as a Help Att
     {
         ctx.WriteLine("");
         List<PuppetCommand> commands = ctx.SearchDictionary(searchTerm);
-        int col1space = Math.Min(commands.Max(c => c.AddressString!.Length) + 3, 100);
+        int col1space = Math.Min(commands.Max(c => c.Address!.Length) + 3, 100);
         int col2space = Math.Max(ctx.OneLineMaxWidth - col1space, 0);
         foreach (PuppetCommand c in commands) ctx.WriteLine(c.PrintShort(col1space, col2space, help, oneline));
     }
@@ -191,7 +191,7 @@ If two arguments are given, the first argument will be interpreted as a Help Att
     {
         ctx.WriteLine("Printing all commands. Try 'help <command>' for more information:");
         List<PuppetCommand> orderedCommands = ctx.SearchDictionary();
-        foreach (PuppetCommand c in orderedCommands) ctx.WriteLine(c.AddressString!);
+        foreach (PuppetCommand c in orderedCommands) ctx.WriteLine(c.Address!);
         return Task.CompletedTask;
     }
 
@@ -200,7 +200,7 @@ If two arguments are given, the first argument will be interpreted as a Help Att
         int col = Math.Min(ctx.AliasIndex.Max(kv => kv.Key.Length), (ctx.OneLineMaxWidth - 10) / 2);
         ctx.WriteLine("Printing all commands and aliases. Try 'help <command> for more information:");
         ctx.WriteLine("");
-        foreach (var kv in ctx.AliasIndex.OrderBy(kv => kv.Value.AddressString)) ctx.WriteLine($"{kv.Key.Truncate(col).PadRight(col)} ({kv.Value.AddressString.Truncate(col)})");
+        foreach (var kv in ctx.AliasIndex.OrderBy(kv => kv.Value.Address)) ctx.WriteLine($"{kv.Key.Truncate(col).PadRight(col)} ({kv.Value.Address.Truncate(col)})");
         return Task.CompletedTask;
     }
 

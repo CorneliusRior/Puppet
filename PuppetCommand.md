@@ -2,14 +2,14 @@
 
 The `PuppetCommand` class is the building block of a Puppet command system. Commands are defined inside command sets implementing `IPuppetCommandSet`, and privided to `Puppet` during construction.
 
-The `PuppetCommand` has only one required property, `Name`. When `Puppet` is built, each assigned command is automatically given an address `AddressString`, structured lke `parent.command.child`, which we call the "Command Head". The command can then be called by inputting the command head, followed by arguments seperated by spaces, stored in an IReadOnlyList\<string\> `args`.
+The `PuppetCommand` has only one required property, `Name`. When `Puppet` is built, each assigned command is automatically given an address `Address`, structured lke `parent.command.child`, which we call the "Command Head". The command can then be called by inputting the command head, followed by arguments seperated by spaces, stored in an IReadOnlyList\<string\> `args`.
 
 A `PuppetCommand` can be defined using either the class constructor, or `CommandBuilder`. To define a command which can take JSON input, use `CommandBuilder`.
 
 ## Properties:
 
 - `Name`: Canonical name of the command. The only required property. AddressString is assigned based on this parameter. Name must be unique in its respective level and have no siblings with identical names. 
-- `AddressString`:
+- `Address`:
 String by which this command is called. Consists of the root command's name followed by descendent names seperated by '.' (e.g. `Help.List`).
 - `Aliases`: A list of aliases which can be used instead of `Name`. Canonical name takes priority in all searches. Every alias must be unique in its respective level and have no siblings with identical aliases.
 - `Children`: Child commands of this command which are given `AddressString` "ThisName.ChildName".
@@ -65,7 +65,8 @@ public class MyCommands : IPuppetCommandSet
 	[
 		Cmd("MyCommand").Children(
 			Cmd("MySubCommand").Build()
-		).Build()
+		)
+		.Build()
 	];
 }
 ```
@@ -87,10 +88,10 @@ public class MyCommands : IPuppetCommandSet
 
 	private Task MyCommandAsync(PuppetContext ctx, IReadOnlyList<string> args, CancellationToken ct)
 	{
-		string myString	 = args.String(1, "My String");		// Throws exception if absent
-		int myInt	 = args.Int(0, "My Int");		// Throws exception if absent or cannot parse
-		bool myBool	 = args.BoolOr(2, "My Bool", true);	// Returns default if absent
-		double? myDouble = args.DoubleOrNull(3, "My Double");	// Returns null if absent
+		string myString		= args.String(1, "My String");			// Throws exception if absent
+		int myInt			= args.Int(0, "My Int");				// Throws exception if absent or cannot parse
+		bool myBool			= args.BoolOr(2, "My Bool", true);		// Returns default if absent
+		double? myDouble	= args.DoubleOrNull(3, "My Double");	// Returns null if absent
 		// ...
 	}
 
@@ -98,10 +99,10 @@ public class MyCommands : IPuppetCommandSet
 	{
 		try
 		{
-			string myString	 = args.String(1, "My String");
-			int myInt	 = args.Int(0, "My Int");		
-			bool myBool	 = args.BoolOr(2, "My Bool", true);	
-			double? myDouble = args.DoubleOrNull(3, "My Double");	
+			string myString		= args.String(1, "My String");
+			int myInt			= args.Int(0, "My Int");		
+			bool myBool			= args.BoolOr(2, "My Bool", true);	
+			double? myDouble	= args.DoubleOrNull(3, "My Double");	
 		}
 		catch (PuppetUserException ex) { return false; }
 		return true;
@@ -164,7 +165,7 @@ private async Task MyPromptAsync(PuppetContext cts, IReadOnlyList<string> args, 
 	bool myBool = await ctx.ConfirmAsync("Enter MyBool: ", true) // returns fallback: "true" if cannot parse
 
 	double myDouble = await ctx.RequireAsync(		// Will not accept any answer which cannot be parsed,
-		"Enter MyDouble: "				// But will revery to default "0" if one of the 
+		"Enter MyDouble: "							// but will revert to default "0" if one of the 
 		s => (double.TryParse(s, out double v), v),	// specified "defaultStrings" is entered.
 		"Could not parse, please try again.",
 		0, "Default", "Fallback", "Zero")

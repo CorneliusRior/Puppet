@@ -6,8 +6,7 @@ namespace Puppet.Models;
 public class PuppetCommand
 {
     public required string Name { get; init; }
-    public IReadOnlyList<string> Address { get; internal set; } = Array.Empty<string>();
-    public string AddressString { get; internal set; } = "";
+    public string Address { get; internal set; } = "";
     public IReadOnlyList<string> Aliases { get; init; }
     public IReadOnlyList<PuppetCommand> Children { get; init; }
     
@@ -66,7 +65,7 @@ public class PuppetCommand
 
     public string PrintShort(int col1space, int col2space, HelpAttribute help, bool oneline = true)
     {
-        string col1 = $"{AddressString}:".PadRight(col1space);        
+        string col1 = $"{Address}:".PadRight(col1space);        
         string col2 = help switch
         {
             HelpAttribute.Aliases           => $"[ {string.Join(", ", Aliases)} ]",
@@ -81,7 +80,7 @@ public class PuppetCommand
     }
 
     public string PrintLong() =>
-        "*" + AddressString + "\n" +
+        "*" + Address + "\n" +
         (Aliases.Count > 0 ? $"Aliases: [ {string.Join(", ", Aliases)} ]\n" : "") +
         (Usage is not null ? $"Usage: {Usage}\n" : "") +
         (Description is not null ? $"Description: {Description}\n" : "") +

@@ -28,10 +28,9 @@ public sealed partial class Puppet
 
     public void AssignChildAddress(PuppetCommand command, List<string> commandHead)
     {
-        commandHead.Add(command.Name);
-        command.Address = commandHead.ToArray();
-        command.AddressString = string.Join('.', commandHead);
-        CommandIndex.Add(command.AddressString, command);
+        commandHead.Add(command.Name);        
+        command.Address = string.Join('.', commandHead);
+        CommandIndex.Add(command.Address, command);
         foreach (PuppetCommand child in command.Children.OrderBy(c => c.Name).ToList()) AssignChildAddress(child, commandHead);
         commandHead.RemoveAt(commandHead.Count - 1);
     }
@@ -45,7 +44,7 @@ public sealed partial class Puppet
             addresses.AddRange(root.Aliases);
             foreach (string alias in addresses)
             {
-                if (!AliasIndex.TryAdd(alias, root)) throw new PuppetException($"Duplicate command or alias address: '{alias}' in '{root.Name}' ('{(root.AddressString ?? "Unknown address")}')");
+                if (!AliasIndex.TryAdd(alias, root)) throw new PuppetException($"Duplicate command or alias address: '{alias}' in '{root.Name}' ('{(root.Address ?? "Unknown address")}')");
                 foreach (PuppetCommand child in root.Children)
                 {
                     AliasDictionaryAdd(alias, child);
@@ -62,7 +61,7 @@ public sealed partial class Puppet
         foreach (string alias in addresses)
         {
             string aliasAddress = parentAddress + '.' + alias;
-            if (!AliasIndex.TryAdd(aliasAddress, command)) throw new PuppetException($"Duplocate command or alias address: `{aliasAddress}` in '{command.Name}' ('{command.AddressString ?? "Unknown address"}')");
+            if (!AliasIndex.TryAdd(aliasAddress, command)) throw new PuppetException($"Duplocate command or alias address: `{aliasAddress}` in '{command.Name}' ('{command.Address ?? "Unknown address"}')");
             foreach (PuppetCommand child in command.Children)
             {
                 AliasDictionaryAdd(aliasAddress, child);

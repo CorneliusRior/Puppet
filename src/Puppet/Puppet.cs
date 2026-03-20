@@ -167,14 +167,14 @@ public sealed partial class Puppet
         }
         if (!cmd.CanExecuteJson)
         {
-            WriteLine($"No ExecuteJson method found for '{cmd.AddressString}', cannot execute.");
+            WriteLine($"No ExecuteJson method found for '{cmd.Address}', cannot execute.");
             return false;
         }
 
         // Return true unless there's a TestJsonAsync method
         if (cmd.JsonPayloadType is null)
         {
-            WriteLine($"Null JsonPayload Type, '{cmd.AddressString}' cannot parse JSON, cannot execute.");
+            WriteLine($"Null JsonPayload Type, '{cmd.Address}' cannot parse JSON, cannot execute.");
             return false;
         }
 
