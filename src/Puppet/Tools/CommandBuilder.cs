@@ -62,6 +62,14 @@ namespace Puppet.Tools
             return this;
         }
 
+        public CommandBuilder AddAlias(string alias)
+        {
+            _aliases.Add(alias);
+            return this;
+        }
+
+        public CommandBuilder AliasAdd(string alias) => AddAlias(alias);
+
         public CommandBuilder Exec(Func<PuppetContext, IReadOnlyList<string>, CancellationToken, Task> executeAsync)
         {
             _executeAsync = executeAsync;
@@ -112,6 +120,14 @@ namespace Puppet.Tools
             return this;
         }
 
+        public CommandBuilder AddExample(string example)
+        {
+            _examples.Add(example);
+            return this;
+        }
+
+        public CommandBuilder ExampleAdd(string example) => AddExample(example);
+
         public CommandBuilder Remarks(string remarks)
         {
             _remarks = remarks;
@@ -123,6 +139,17 @@ namespace Puppet.Tools
             _children.AddRange(children);
             return this;
         }
+
+        public CommandBuilder AddChild(PuppetCommand child)
+        {
+            _children.Add(child);
+            return this;
+        }
+
+        public CommandBuilder ChildAdd(PuppetCommand child) => AddChild(child);
+        public CommandBuilder SubCommands(params PuppetCommand[] subCommands) => Children(subCommands);
+        public CommandBuilder AddSubcommand(PuppetCommand subCommand) => AddChild(subCommand);
+        public CommandBuilder SubcommandAdd(PuppetCommand subCommand) => AddChild(subCommand);
     }
 
     public static class CmdBuilder

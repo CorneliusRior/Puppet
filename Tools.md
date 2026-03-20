@@ -1,16 +1,18 @@
 # Puppet Tools
 
+`Puppet.Tools` contains tools to help build command systems easily.
+
 ## CommandBuilder
 
 Command builder is a tool for building commands. It also allows for the definition of `ExecuteJsonAsync` and associated properties, which the default constructor does not.
 
 ### How to use:
 
-Type `using Puppet.Tools.CmdBuiler` at the top of a file. `CommandBuilder` can now be accessed with `Cmd(string name)`. Alternatively, every command declaration can be written as `CommandBuilder.Command(string name)`.
+Type `using Puppet.Tools.CmdBuiler` at the top of a file. `CommandBuilder` can now be accessed with `Cmd(string name)`. Alternatively, every `CommandBuilder` declaration can be written as `CommandBuilder.Command(string name)`. This creates a `CommandBuilder` instance which can be added to with extensions, such as `.Exec()`, `.Usage()` and `.Description()`. One a `CommandBuilder` is complete, use `.Build()` to convert it to a `PuppetCommand`.
 
-As every other field for a `PuppetCommand` is optional, as many of as little of the extention methods can be added as required. Once a command is defined with a name, so long as the command set is added to `Puppet` on construction, it will be registered and will appear on the `help` list.
+As every other field for a `PuppetCommand` is optional, extention methods can be added only as required. Once a command is defined with a name, and the command set is added to `Puppet` on construction, it will be registered and will appear on the `help` list.
 
-Here is an example of the implementation of every extension:
+Here is an example of a command definition using every extension:
 
 ```csharp
 
@@ -22,6 +24,7 @@ public sealed class MyCommandSet : IPuppetCommandSet
 	[
 		Cmd("MyCommand).
 			.Aliases("mc", "SampleCommand", "MyCmd")
+			.AddAlias("SampleCmd")
 			.Exec(MyCommandAsync)
 			.Test(MyCommandTestAsync)
 			.ExecJson<MyCommandPayload>(MyCommandJsonAsync)
@@ -41,6 +44,7 @@ public sealed class MyCommandSet : IPuppetCommandSet
 				}
 				"""
 			)
+			.AddExample("MyCommand 50 puppet false 10.5")
 			.Remarks("This is just a place to keep notes.")
 			.Children(
 				Cmd("FirstSubCommand")
@@ -51,7 +55,13 @@ public sealed class MyCommandSet : IPuppetCommandSet
 					// ...
 				.Build()
 
-				)
+			)
+			.AddChild(
+				Cmd("ThirdSubCommand")
+					//...
+				.Build()
+
+			)
 		.Build()
 	]
 }
@@ -65,7 +75,7 @@ public sealed class MyCommandSet : IPuppetCommandSet
 - Every extension should be on its own line and indented once.
 - `Build()` should have the same indentation as the `Cmd()` statement.
 - Extentions should be in this general order (identical order to `PuppetCommand` constructor).
-- `Children()` should always be the last extension used (if defined).
+- `Children()` or `AddChild()` should always be the last extension used (if defined).
 - Every subcommand definition should have a one-line gap afterwards.
 
 Multiple extensions can also be used on the same line for more compact code.
